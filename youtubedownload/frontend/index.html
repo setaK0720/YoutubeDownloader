@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="シンプルで美しいYouTube動画ダウンローダー - yt-dlpを使用">
+    <title>YouTube Downloader</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <!-- ヘッダー -->
+        <header class="header">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <h1>YouTube Downloader</h1>
+            </div>
+            <p class="tagline">高品質な動画を簡単ダウンロード</p>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- URL入力セクション -->
+            <section class="input-section">
+                <div class="input-wrapper">
+                    <input type="text" id="videoUrl" class="url-input" placeholder="動画のURLを入力してください..."
+                        aria-label="動画URL">
+                    <button id="fetchInfoBtn" class="btn btn-primary">
+                        <span class="btn-text">動画情報を取得</span>
+                        <span class="btn-icon">→</span>
+                    </button>
+                </div>
+                <p class="tip">YouTube、ニコニコ動画、Twitterなど1000以上のサイトに対応</p>
+            </section>
+
+            <!-- 動画プレビューセクション -->
+            <section id="preview-section" class="preview-section hidden">
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img id="videoThumbnail" src="" alt="動画サムネイル">
+                        <div class="duration-badge" id="videoDuration">00:00</div>
+                    </div>
+                    <div class="video-info">
+                        <h2 id="videoTitle" class="video-title">動画タイトル</h2>
+                        <div class="video-meta">
+                            <span id="videoUploader" class="uploader">アップロード者</span>
+                            <span id="videoViews" class="views">0 回視聴</span>
+                        </div>
+                        <p id="videoDescription" class="video-description">動画の説明...</p>
+
+                        <!-- 品質選択セクション -->
+                        <div class="quality-selector">
+                            <div class="format-type-selector">
+                                <label class="radio-label">
+                                    <input type="radio" name="formatType" value="video" checked>
+                                    <span>📹 動画</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="formatType" value="audio">
+                                    <span>🎵 音声のみ</span>
+                                </label>
+                            </div>
+
+                            <div id="videoQualitySelector" class="quality-option">
+                                <label for="videoQuality">画質:</label>
+                                <select id="videoQuality" class="quality-select">
+                                    <option value="best">最高画質</option>
+                                    <option value="1080">1080p (Full HD)</option>
+                                    <option value="720" selected>720p (HD)</option>
+                                    <option value="480">480p (SD)</option>
+                                    <option value="360">360p</option>
+                                </select>
+                            </div>
+
+                            <div id="audioQualitySelector" class="quality-option hidden">
+                                <label for="audioQuality">音質:</label>
+                                <select id="audioQuality" class="quality-select">
+                                    <option value="320">320 kbps (最高音質)</option>
+                                    <option value="192" selected>192 kbps (高音質)</option>
+                                    <option value="128">128 kbps (標準)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button id="downloadBtn" class="btn btn-download">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            <span>ダウンロード開始</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ダウンロード進捗セクション -->
+            <section id="progress-section" class="progress-section hidden">
+                <div class="progress-card">
+                    <h3 class="progress-title">ダウンロード中...</h3>
+                    <div class="progress-bar-container">
+                        <div id="progressBar" class="progress-bar" style="width: 0%">
+                            <div class="progress-shimmer"></div>
+                        </div>
+                    </div>
+                    <div class="progress-stats">
+                        <span id="progressPercent" class="progress-percent">0%</span>
+                        <span id="progressSpeed" class="progress-speed">0 MB/s</span>
+                        <span id="progressEta" class="progress-eta">-- 残り</span>
+                    </div>
+                    <p id="progressMessage" class="progress-message"></p>
+                </div>
+            </section>
+
+            <!-- ダウンロード完了セクション -->
+            <section id="complete-section" class="complete-section hidden">
+                <div class="complete-card">
+                    <div class="complete-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.7088 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85999"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M22 4L12 14.01L9 11.01" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <h3 class="complete-title">ダウンロード完了！</h3>
+                    <p id="completeFilename" class="complete-filename">filename.mp4</p>
+                    <a id="downloadFileBtn" href="#" class="btn btn-download-file" download>
+                        <span>ファイルをダウンロード</span>
+                    </a>
+                    <button id="newDownloadBtn" class="btn btn-secondary">
+                        別の動画をダウンロード
+                    </button>
+                </div>
+            </section>
+
+            <!-- エラーセクション -->
+            <section id="error-section" class="error-section hidden">
+                <div class="error-card">
+                    <div class="error-icon">⚠️</div>
+                    <h3 class="error-title">エラーが発生しました</h3>
+                    <p id="errorMessage" class="error-message">エラーメッセージ</p>
+                    <button id="retryBtn" class="btn btn-secondary">
+                        再試行
+                    </button>
+                </div>
+            </section>
+
+            <!-- ダウンロード履歴セクション -->
+            <section class="history-section">
+                <h2 class="section-title">ダウンロード履歴</h2>
+                <div id="historyList" class="history-list">
+                    <!-- 履歴アイテムが動的に追加されます -->
+                </div>
+            </section>
+        </main>
+
+        <!-- フッター -->
+        <footer class="footer">
+            <p>Powered by <a href="https://github.com/yt-dlp/yt-dlp" target="_blank" rel="noopener">yt-dlp</a></p>
+        </footer>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+
+</html>
